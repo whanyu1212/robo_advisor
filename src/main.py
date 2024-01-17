@@ -10,8 +10,8 @@ init(autoreset=True)
 
 
 # Global variables
-CONFIG_FILE_PATH = "./config/default_config.yaml"
-USER_INPUT_FILE_PATH = "./data/test_user_input.csv"
+CONFIG_FILE_PATH = "./cfg/catalog.yaml"
+GCP_AUTH_FILE_PATH = "./cfg/hy-learning-93fbebd91d63.json"
 
 
 def log_time_taken(start_time, task_name="Robo Advisor Orchestration"):
@@ -21,3 +21,12 @@ def log_time_taken(start_time, task_name="Robo Advisor Orchestration"):
         f"{Fore.BLUE}Total time taken for {task_name}: \n"
         f"{total_time} seconds{Style.RESET_ALL}"
     )
+
+
+if __name__ == "__main__":
+    try:
+        pipeline_start_time = time.time()
+        logger.info(f"{Fore.BLUE}Starting the ML Pipeline{Style.RESET_ALL}")
+        log_time_taken(pipeline_start_time)
+    except Exception as e:
+        logger.error(f"An error occurred: {e}")

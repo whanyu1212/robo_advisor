@@ -29,6 +29,8 @@ quandl = "^3.7.0"
 pyyaml = "^6.0.1"
 google-cloud-bigquery = "^3.16.0"
 colorama = "^0.4.6"
+pydantic = "^2.5.3"
+pandera = "^0.18.0"
 
 
 [build-system]
