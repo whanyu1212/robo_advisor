@@ -9,30 +9,21 @@ from src.utils.strategic_conditions import strategy_conditions
 
 def assign_strategy(row, strategy_conditions):
     for strategy_condition in strategy_conditions:
-        if all(
-            condition(row) for condition in strategy_condition["conditions"]
-        ):
+        if all(condition(row) for condition in strategy_condition["conditions"]):
             return strategy_condition["strategy"]
 
     return (
         "Balanced"
         if np.random.rand() < 0.9
         else np.random.choice(
-            [
-                s["strategy"]
-                for s in strategy_conditions
-                if s["strategy"] != "Balanced"
-            ]
+            [s["strategy"] for s in strategy_conditions if s["strategy"] != "Balanced"]
         )
     )
 
 
 def generate_user_id_str(n_samples):
     return [
-        "".join(
-            random.choice(string.ascii_uppercase + string.digits)
-            for _ in range(10)
-        )
+        "".join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
         for _ in range(n_samples)
     ]
 
@@ -50,9 +41,7 @@ def generate_credit_score(n_samples):
 
 
 def generate_investment_experience(n_samples):
-    return np.random.choice(
-        ["Novice", "Intermediate", "Experienced"], n_samples
-    )
+    return np.random.choice(["Novice", "Intermediate", "Experienced"], n_samples)
 
 
 def generate_financial_knowledge(n_samples):
@@ -70,17 +59,15 @@ def generate_investment_goals(n_samples):
 
 
 def generate_time_horizon(n_samples):
-    return np.random.choice(
-        ["Short-term", "Medium-term", "Long-term"], n_samples
-    )
+    return np.random.choice(["Short-term", "Medium-term", "Long-term"], n_samples)
 
 
 def generate_total_assets(n_samples):
-    return np.random.normal(500000, 150000, n_samples).astype(int)
+    return np.random.normal(5000000, 150000, n_samples).astype(int)
 
 
 def generate_total_liabilities(n_samples):
-    return np.random.normal(200000, 100000, n_samples).astype(int)
+    return np.random.normal(2000000, 100000, n_samples).astype(int)
 
 
 def generate_number_of_dependents(n_samples):

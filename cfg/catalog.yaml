@@ -2,3 +2,14 @@ raw_filepath: ./data/raw/synthetic_data.csv
 gcp_auth_path: ./cfg/hy-learning-93fbebd91d63.json
 dataset_id: default_dataset
 table_id: synthetic_data_ML
+
+numerical_features:
+  - 
+
+categorical_features:
+  - Income_Level
+  - Investment_Experience
+
+
+useless_features:
+  - USER_ID

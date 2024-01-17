@@ -1,5 +1,3 @@
-# strategy_conditions.py
-
 age_threshold = 70
 net_worth_threshold = 1_000_000_000
 

@@ -4,6 +4,7 @@ import time
 from colorama import Fore, Style, init
 from loguru import logger
 
+from src.utils.data_schema import synthetic_data_schema
 from src.utils.general_util_functions import parse_cfg, upload_csv_BQ, validate_config
 
 # import yaml
@@ -53,7 +54,8 @@ if __name__ == "__main__":
 
         logger.info(f"{Fore.GREEN}Generating synthetic dataset for ML{Style.RESET_ALL}")
         synthetic_date = generate_synthetic_data()
-
+        synthetic_data_schema.validate(synthetic_date)
+        logger.success("Data schema validated.")
         upload_csv_BQ(credential_path, dataset_id, table_id, csv_file_path)
 
         log_time_taken(pipeline_start_time)
