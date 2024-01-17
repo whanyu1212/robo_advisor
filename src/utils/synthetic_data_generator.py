@@ -1,19 +1,10 @@
 import random
+import string
 
 import numpy as np
 import pandas as pd
 
 from src.utils.strategic_conditions import strategy_conditions
-
-
-def assign_strategy_based_on_conditions(row, conditions, strategy, strategies):
-    if all(condition(row) for condition in conditions):
-        return (
-            strategy
-            if random.random() < 0.9
-            else random.choice([s for s in strategies if s != strategy])
-        )
-    return None
 
 
 def assign_strategy(row, strategy_conditions):
@@ -34,6 +25,16 @@ def assign_strategy(row, strategy_conditions):
             ]
         )
     )
+
+
+def generate_user_id_str(n_samples):
+    return [
+        "".join(
+            random.choice(string.ascii_uppercase + string.digits)
+            for _ in range(10)
+        )
+        for _ in range(n_samples)
+    ]
 
 
 def generate_age(n_samples):
@@ -90,12 +91,13 @@ def generate_years_of_investing(n_samples):
     return np.random.randint(0, 40, n_samples)
 
 
-def generate_synthetic_data(n_samples=10000):
+def generate_synthetic_data(n_samples=100000):
     """Generates a synthetic dataset of investor profiles and their
     corresponding investment strategies."""
     np.random.seed(0)
     data = pd.DataFrame(
         {
+            "User_ID": generate_user_id_str(n_samples),
             "Age": generate_age(n_samples),
             "Income_Level": generate_income_level(n_samples),
             "Credit_Score": generate_credit_score(n_samples),
@@ -125,4 +127,4 @@ def generate_synthetic_data(n_samples=10000):
 if __name__ == "__main__":
     data = generate_synthetic_data()
     print(data.head())
-    print(data["Investment_Strategy"].value_counts())
+    data.to_csv("./data/raw/synthetic_data.csv", index=False)

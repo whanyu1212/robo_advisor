@@ -17,7 +17,7 @@ repos:
         types:
           - "python"
         args:
-          - "--line-length=79"
+          ["--profile", "black"]
       - id: docformatter
         name: docformatter
         entry: docformatter
