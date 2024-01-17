@@ -4,6 +4,7 @@ import time
 from colorama import Fore, Style, init
 from loguru import logger
 
+from src.data_processing import DataProcessor
 from src.utils.data_schema import synthetic_data_schema
 from src.utils.general_util_functions import parse_cfg, upload_csv_BQ, validate_config
 
@@ -53,10 +54,25 @@ if __name__ == "__main__":
         csv_file_path = config["raw_filepath"]
 
         logger.info(f"{Fore.GREEN}Generating synthetic dataset for ML{Style.RESET_ALL}")
-        synthetic_date = generate_synthetic_data()
-        synthetic_data_schema.validate(synthetic_date)
+        synthetic_data = generate_synthetic_data()
+        synthetic_data_schema.validate(synthetic_data)
         logger.success("Data schema validated.")
         upload_csv_BQ(credential_path, dataset_id, table_id, csv_file_path)
+
+        processor = DataProcessor(
+            synthetic_data,
+            config["useless_features"],
+            config["categorical_features"],
+            config["numerical_features"],
+        )
+        df_processed = (
+            processor.remove_useless_columns()
+            .encode_categorical_columns()
+            .outlier_removal()
+        )
+
+        df_processed.to_csv("./data/processed/processed_data.csv", index=False)
+        print(df_processed.head())
 
         log_time_taken(pipeline_start_time)
     except Exception as e:

@@ -111,6 +111,7 @@ def generate_synthetic_data(n_samples=100000):
     return data
 
 
+# test the above functions
 if __name__ == "__main__":
     data = generate_synthetic_data()
     print(data.head())

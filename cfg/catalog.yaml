@@ -4,12 +4,24 @@ dataset_id: default_dataset
 table_id: synthetic_data_ML
 
 numerical_features:
-  - 
+  - Age
+  - Credit_Score
+  - Total_Assets
+  - Total_Liabilities
+  - Number_of_Dependents
+  - Years_of_Investing
+  - Net_Worth 
 
 categorical_features:
+  - User_ID
   - Income_Level
+  - Investment_Experience
+  - Financial_Knowledge
+  - Risk_Tolerance
+  - Investment_Goals
+  - Time_HorizonIncome_Level
   - Investment_Experience
 
 
 useless_features:
-  - USER_ID
+  ['USER_ID']
