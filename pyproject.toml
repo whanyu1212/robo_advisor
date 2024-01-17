@@ -25,6 +25,7 @@ torchaudio = "^2.1.2"
 ipykernel = "^6.28.0"
 lightgbm = "^4.2.0"
 matplotlib = "^3.8.2"
+quandl = "^3.7.0"
 
 
 [build-system]
