@@ -78,7 +78,7 @@ def generate_years_of_investing(n_samples):
     return np.random.randint(0, 40, n_samples)
 
 
-def generate_synthetic_data(n_samples=100000):
+def generate_synthetic_data(n_samples=30000):
     """Generates a synthetic dataset of investor profiles and their
     corresponding investment strategies."""
     np.random.seed(0)

@@ -13,15 +13,13 @@ numerical_features:
   - Net_Worth 
 
 categorical_features:
-  - User_ID
   - Income_Level
   - Investment_Experience
   - Financial_Knowledge
   - Risk_Tolerance
   - Investment_Goals
-  - Time_HorizonIncome_Level
-  - Investment_Experience
+  - Time_Horizon
 
 
 useless_features:
-  ['USER_ID']
+  ['User_ID']

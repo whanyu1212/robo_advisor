@@ -1,6 +1,10 @@
-import numpy as np
 import pandas as pd
-from scipy import stats
+from loguru import logger
+from colorama import Fore, init
+from sklearn.manifold import TSNE
+from sklearn.preprocessing import LabelEncoder
+
+init(autoreset=True)
 
 
 class DataProcessor:
@@ -11,22 +15,35 @@ class DataProcessor:
         self.numerical_columns = numerical_columns
 
     def remove_useless_columns(self):
-        for column in self.useless_columns:
-            if column in self.df.columns:
-                self.df = self.df.drop(columns=column, axis=1)
-        return self
+        logger.info(f"{Fore.GREEN}Starting to remove useless columns.")
+        df_filtered = self.df.drop(
+            columns=[col for col in self.useless_columns if col in self.df.columns]
+        )
+        logger.info(f"{Fore.GREEN}Finished removing useless columns.")
+        return df_filtered
 
-    def encode_categorical_columns(self):
-        for column in self.categorical_columns:
-            if column in self.df.columns and column != "Investment_Strategy":
-                dummies = pd.get_dummies(self.df[column], prefix=column)
-                self.df = pd.concat([self.df, dummies], axis=1)
-                self.df = self.df.drop(column, axis=1)
-        return self
+    def encode_categorical_columns(self, df_filtered):
+        dummy_frames = []
+        for col in self.categorical_columns:
+            dummy_frame = pd.get_dummies(df_filtered[col], prefix=col)
+            dummy_frames.append(dummy_frame)
+            df_dummies = pd.concat(dummy_frames, axis=1)
 
-    def outlier_removal(self):
-        for column in self.numerical_columns:
-            if column in self.df.columns:
-                z = np.abs(stats.zscore(self.df[column]))
-                self.df = self.df[z < 3]
-        return self
+        return df_dummies
+
+    def combine_dummy_n_numeric(
+        self, df_dummies: pd.DataFrame, df_filtered: pd.DataFrame
+    ) -> pd.DataFrame:
+        df_final = pd.concat(
+            [
+                df_dummies,
+                df_filtered[self.numerical_columns],
+                df_filtered["Investment_Strategy"],
+            ],
+            axis=1,
+        )
+        le = LabelEncoder()
+        le.fit(df_final.Investment_Strategy)
+        df_final.Investment_Strategy = le.transform(df_final.Investment_Strategy)
+        # df_final.to_csv("./data/df_cleaned.csv", index=False)
+        return df_final

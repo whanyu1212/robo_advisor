@@ -7,6 +7,7 @@ from loguru import logger
 from src.data_processing import DataProcessor
 from src.utils.data_schema import synthetic_data_schema
 from src.utils.general_util_functions import parse_cfg, upload_csv_BQ, validate_config
+from src.model_pipeline import ModelPipeline
 
 # import yaml
 from src.utils.synthetic_data_generator import generate_synthetic_data
@@ -57,7 +58,8 @@ if __name__ == "__main__":
         synthetic_data = generate_synthetic_data()
         synthetic_data_schema.validate(synthetic_data)
         logger.success("Data schema validated.")
-        upload_csv_BQ(credential_path, dataset_id, table_id, csv_file_path)
+        synthetic_data.to_csv(csv_file_path, index=False)
+        # upload_csv_BQ(credential_path, dataset_id, table_id, csv_file_path)
 
         processor = DataProcessor(
             synthetic_data,
@@ -65,14 +67,17 @@ if __name__ == "__main__":
             config["categorical_features"],
             config["numerical_features"],
         )
-        df_processed = (
-            processor.remove_useless_columns()
-            .encode_categorical_columns()
-            .outlier_removal()
-        )
+        df_processed = processor.remove_useless_columns()
+        df_dummies = processor.encode_categorical_columns(df_processed)
+        df_final = processor.combine_dummy_n_numeric(df_dummies, df_processed)
+        # df_processed.to_csv("./data/processed/processed_data.csv", index=False)
+        print(df_final.columns)
 
-        df_processed.to_csv("./data/processed/processed_data.csv", index=False)
-        print(df_processed.head())
+        lgbm_pipeline = ModelPipeline(df_final, "Investment_Strategy")
+        lgbm_pipeline.run(10)
+
+        feature_importance = lgbm_pipeline.run(10)
+        print(feature_importance.index)
 
         log_time_taken(pipeline_start_time)
     except Exception as e:
