@@ -1,8 +1,8 @@
 # robo_advisor
-A robo advisor that is trained on ML to predict user preference and assign trading strategy accordingly
+A robo advisor that is trained on ML to predict user preference in order to assign and execute trading strategy accordingly
 
 #### Configuring environment:
-We will be using Pyenv + Poetry for environment & dependency management in this project
+We will be using Pyenv + Poetry for environment & dependency management in this project. Conda is a decent enough alternative but I personally don't find it lightweight enough.
 
 (1) Managing Python versions using Pyenv:
   - Version manager that helps you to manage different versions of Python based on project needs
