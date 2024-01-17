@@ -4,14 +4,14 @@ import time
 from colorama import Fore, Style, init
 from loguru import logger
 
-from src.export_BQ import upload_csv_BQ
-from src.utils.general_util_functions import parse_cfg, validate_config
+from src.utils.general_util_functions import parse_cfg, upload_csv_BQ, validate_config
 
 # import yaml
 from src.utils.synthetic_data_generator import generate_synthetic_data
 
 init(autoreset=True)
 
+logger.add("./logs/Workflow_logs.log")
 
 # Global variables
 CONFIG_FILE_PATH = "./cfg/catalog.yaml"
@@ -51,9 +51,7 @@ if __name__ == "__main__":
         table_id = config["table_id"]
         csv_file_path = config["raw_filepath"]
 
-        logger.info(
-            f"{Fore.GREEN}Generating synthetic dataset for ML{Style.RESET_ALL}"
-        )
+        logger.info(f"{Fore.GREEN}Generating synthetic dataset for ML{Style.RESET_ALL}")
         synthetic_date = generate_synthetic_data()
 
         upload_csv_BQ(credential_path, dataset_id, table_id, csv_file_path)
