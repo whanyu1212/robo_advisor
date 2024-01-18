@@ -5,9 +5,9 @@ from colorama import Fore, Style, init
 from loguru import logger
 
 from src.data_processing import DataProcessor
-from src.utils.data_schema import synthetic_data_schema
-from src.utils.general_util_functions import parse_cfg, upload_csv_BQ, validate_config
 from src.model_pipeline import ModelPipeline
+from src.utils.data_schema import synthetic_data_schema
+from src.utils.general_util_functions import parse_cfg, validate_config
 
 # import yaml
 from src.utils.synthetic_data_generator import generate_synthetic_data
@@ -40,7 +40,35 @@ def log_time_taken(start_time):
     )
 
 
-if __name__ == "__main__":
+def process_data(config, synthetic_data):
+    processor = DataProcessor(
+        synthetic_data,
+        config["useless_features"],
+        config["categorical_features"],
+        config["numerical_features"],
+    )
+    df_processed = processor.remove_useless_columns()
+    df_dummies = processor.encode_categorical_columns(df_processed)
+    df_final = processor.combine_dummy_n_numeric(df_dummies, df_processed)
+    return df_final
+
+
+def get_important_features(df_final):
+    lgbm_pipeline = ModelPipeline(df_final, "Investment_Strategy")
+    lgbm_pipeline.run(15)
+    feature_importance = lgbm_pipeline.run(10)
+    print(feature_importance.index)
+
+    return feature_importance.index.tolist()
+
+
+def trim_predictors(df_final, reduced_features):
+    reduced_features.append("Investment_Strategy")
+    df_final = df_final[reduced_features]
+    return df_final
+
+
+def main():
     try:
         pipeline_start_time = time.time()
         logger.info(f"{Fore.BLUE}Starting the ML Pipeline{Style.RESET_ALL}")
@@ -49,9 +77,9 @@ if __name__ == "__main__":
         validate_config(config)
         logger.info("Config validated.")
 
-        credential_path = config["gcp_auth_path"]
-        dataset_id = config["dataset_id"]
-        table_id = config["table_id"]
+        # credential_path = config["gcp_auth_path"]
+        # dataset_id = config["dataset_id"]
+        # table_id = config["table_id"]
         csv_file_path = config["raw_filepath"]
 
         logger.info(f"{Fore.GREEN}Generating synthetic dataset for ML{Style.RESET_ALL}")
@@ -59,26 +87,17 @@ if __name__ == "__main__":
         synthetic_data_schema.validate(synthetic_data)
         logger.success("Data schema validated.")
         synthetic_data.to_csv(csv_file_path, index=False)
-        # upload_csv_BQ(credential_path, dataset_id, table_id, csv_file_path)
 
-        processor = DataProcessor(
-            synthetic_data,
-            config["useless_features"],
-            config["categorical_features"],
-            config["numerical_features"],
-        )
-        df_processed = processor.remove_useless_columns()
-        df_dummies = processor.encode_categorical_columns(df_processed)
-        df_final = processor.combine_dummy_n_numeric(df_dummies, df_processed)
-        # df_processed.to_csv("./data/processed/processed_data.csv", index=False)
-        print(df_final.columns)
+        df_final = process_data(config, synthetic_data)
 
-        lgbm_pipeline = ModelPipeline(df_final, "Investment_Strategy")
-        lgbm_pipeline.run(10)
+        reduced_features = get_important_features(df_final)
 
-        feature_importance = lgbm_pipeline.run(10)
-        print(feature_importance.index)
-
+        df_trimmed = trim_predictors(df_final, reduced_features)
+        print(df_trimmed.columns)
         log_time_taken(pipeline_start_time)
     except Exception as e:
         logger.error(f"{Fore.RED}An error occurred: {e}")
+
+
+if __name__ == "__main__":
+    main()
