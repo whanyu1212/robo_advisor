@@ -31,11 +31,8 @@ google-cloud-bigquery = "^3.16.0"
 colorama = "^0.4.6"
 pydantic = "^2.5.3"
 pandera = "^0.18.0"
-<<<<<<< Updated upstream
-shap = "^0.44.0"
-=======
 mlflow = "^2.9.2"
->>>>>>> Stashed changes
+shap = "^0.44.0"
 
 
 [build-system]

@@ -1,7 +1,6 @@
-import shap
 import pandas as pd
-from sklearn.model_selection import train_test_split
 from lightgbm import LGBMClassifier
+from sklearn.model_selection import train_test_split
 
 
 class ModelPipeline:
@@ -22,6 +21,9 @@ class ModelPipeline:
         self.model = LGBMClassifier(random_state=self.random_state)
         self.model.fit(self.X_train, self.y_train)
 
+    def eval_model(self):
+        print(self.model.score(self.X_test, self.y_test))
+
     def calculate_feature_importance(self, n):
         feature_importance = pd.Series(
             self.model.feature_importances_, index=self.X_train.columns
@@ -31,4 +33,5 @@ class ModelPipeline:
     def run(self, n):
         self.split_data()
         self.fit_model()
+        self.eval_model()
         return self.calculate_feature_importance(n)
