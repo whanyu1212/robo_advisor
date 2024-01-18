@@ -1,6 +1,10 @@
 # robo_advisor
 A robo advisor that is trained on ML to predict user preference in order to assign and execute trading strategy accordingly
 
+### Part 1: ML Prediction to find the suitable investment strategy based on user profile features
+
+### Part 2: Recommend and execute trading algorithm based on the results from Part 1
+
 #### Configuring environment:
 We will be using Pyenv + Poetry for environment & dependency management in this project. Conda is a decent enough alternative but I personally don't find it lightweight enough.
 
