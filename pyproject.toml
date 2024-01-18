@@ -33,6 +33,7 @@ pydantic = "^2.5.3"
 pandera = "^0.18.0"
 mlflow = "^2.9.2"
 shap = "^0.44.0"
+optuna = "^3.5.0"
 
 
 [build-system]
