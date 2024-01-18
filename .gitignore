@@ -163,3 +163,5 @@ cython_debug/
 *.json
 *.csv
 *.DS_Store
+
+mlruns/

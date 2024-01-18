@@ -5,6 +5,7 @@ from colorama import Fore, Style, init
 from loguru import logger
 
 from src.data_processing import DataProcessor
+from src.mlflow_tuning import Optuna_flow
 from src.model_pipeline import ModelPipeline
 from src.utils.data_schema import synthetic_data_schema
 from src.utils.general_util_functions import parse_cfg, validate_config
@@ -19,6 +20,8 @@ logger.add("./logs/Workflow_logs.log")
 # Global variables
 CONFIG_FILE_PATH = "./cfg/catalog.yaml"
 GCP_AUTH_FILE_PATH = "./cfg/hy-learning-93fbebd91d63.json"
+MODEL_NAME = "Investment_strategy_model"
+MODEL_VERSION = 1
 
 
 def log_time_taken(start_time):
@@ -94,6 +97,14 @@ def main():
 
         df_trimmed = trim_predictors(df_final, reduced_features)
         print(df_trimmed.columns)
+
+        X, y = (
+            df_trimmed.drop("Investment_Strategy", axis=1),
+            df_trimmed["Investment_Strategy"],
+        )
+
+        Optuna_flow(MODEL_NAME, MODEL_VERSION, X, y, n_trials=10)
+
         log_time_taken(pipeline_start_time)
     except Exception as e:
         logger.error(f"{Fore.RED}An error occurred: {e}")
