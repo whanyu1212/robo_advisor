@@ -1,33 +1,38 @@
-raw_filepath: ./data/raw/synthetic_data.csv
-gcp_auth_path: ./cfg/hy-learning-93fbebd91d63.json
-dataset_id: default_dataset
-table_id: synthetic_data_ML
-
-numerical_features:
-  - Age
-  - Credit_Score
-  - Total_Assets
-  - Total_Liabilities
-  - Number_of_Dependents
-  - Years_of_Investing
-  - Net_Worth 
-
 categorical_features:
-  - Income_Level
-  - Investment_Experience
-  - Financial_Knowledge
-  - Risk_Tolerance
-  - Investment_Goals
-  - Time_Horizon
-
-
-useless_features:
-  -User_ID
-
+- Income_Level
+- Investment_Experience
+- Financial_Knowledge
+- Risk_Tolerance
+- Investment_Goals
+- Time_Horizon
+dataset_id: default_dataset
+destination_blob_name: investment_strategy_prediction_model
+endpoint_display_name: investment_strategy_prediction_endpoint
+gcp_auth_path: ./cfg/hy-learning-93fbebd91d63.json
 gcp_project_id: hy-learning
-location: asia-southeast1
 gcs_bucket: hy-storage-bucket
 gsutil_uri: gs://hy-storage-bucket
-destination_blob_name: investment_strategy_prediction_model
+location: asia-southeast1
 model_display_name: investment_strategy_prediction_model
-endpoint_display_name: investment_strategy_prediction_endpoint
+numerical_features:
+- Age
+- Credit_Score
+- Total_Assets
+- Total_Liabilities
+- Number_of_Dependents
+- Years_of_Investing
+- Net_Worth
+raw_filepath: ./data/raw/synthetic_data.csv
+reduced_features:
+- Credit_Score
+- Total_Liabilities
+- Total_Assets
+- Net_Worth
+- Age
+- Years_of_Investing
+- Number_of_Dependents
+- Risk_Tolerance_High
+- Income_Level_High
+- Risk_Tolerance_Low
+table_id: synthetic_data_ML
+useless_features: -User_ID

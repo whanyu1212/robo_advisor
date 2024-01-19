@@ -1,6 +1,7 @@
 import time
 
 import pandas as pd
+import yaml
 from colorama import Fore, Style, init
 from loguru import logger
 
@@ -44,6 +45,19 @@ def log_time_taken(start_time: float):
         f"Process finished. Time taken: {Fore.GREEN}{total_time} "
         f"{time_unit}{Style.RESET_ALL}. Exiting..."
     )
+
+
+def log_important_features(features, config_file):
+    # Load the existing config
+    with open(config_file, "r") as f:
+        config = yaml.safe_load(f)
+
+    # Update the config with the new features
+    config["reduced_features"] = features
+
+    # Write the updated config back to the file
+    with open(config_file, "w") as f:
+        yaml.safe_dump(config, f)
 
 
 def get_csv_writer(df: pd.DataFrame, file_path: str) -> callable:
@@ -152,6 +166,7 @@ def main():
 
         df_final = process_data(config, synthetic_data)
         reduced_features = get_important_features(df_final)
+        log_important_features(reduced_features, CONFIG_FILE_PATH)
         df_trimmed = trim_predictors(df_final, reduced_features)
 
         write_func_df_trimmed = get_csv_writer(
