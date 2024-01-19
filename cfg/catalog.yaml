@@ -22,4 +22,12 @@ categorical_features:
 
 
 useless_features:
-  ['User_ID']
+  -User_ID
+
+gcp_project_id: hy-learning
+location: asia-southeast1
+gcs_bucket: hy-storage-bucket
+gsutil_uri: gs://hy-storage-bucket
+destination_blob_name: investment_strategy_prediction_model
+model_display_name: investment_strategy_prediction_model
+endpoint_display_name: investment_strategy_prediction_endpoint
