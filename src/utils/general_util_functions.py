@@ -1,5 +1,6 @@
 from typing import IO, Dict, Union
 
+import pandas as pd
 import yaml
 from google.cloud import bigquery
 from loguru import logger
@@ -55,6 +56,24 @@ def validate_config(config: Dict) -> None:
 
         if not value:
             raise ValueError(f"Config key {key} must not be empty")
+
+
+def split_predictor_target(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Split the data into predictor and target.
+
+    Args:
+        df (pd.DataFrame): ML ready data
+
+    Returns:
+        tuple[pd.DataFrame, pd.DataFrame]: predictor and target, respectively
+        2 pandas dataframes
+    """
+    X, y = (
+        df.drop("Investment_Strategy", axis=1),
+        df[["Investment_Strategy"]],
+    )
+    return X, y
 
 
 def create_bigquery_client(credential_path: str) -> bigquery.Client:
@@ -124,6 +143,14 @@ def handle_job_result(job: bigquery.LoadJob, csv_file_path: str) -> None:
         logger.error(f"Job {job.job_id} ended with state: {job.state}")
 
 
+def open_source_file(csv_file_path: str) -> IO[bytes]:
+    try:
+        return open(csv_file_path, "rb")
+    except (IOError, FileNotFoundError) as e:
+        logger.error(f"Failed to open file {csv_file_path}: {str(e)}")
+        raise
+
+
 def upload_csv_BQ(
     credential_path: str, dataset_id: str, table_id: str, csv_file_path: str
 ) -> None:
@@ -141,16 +168,11 @@ def upload_csv_BQ(
     table_ref = client.dataset(dataset_id).table(table_id)
     job_config = create_job_config()
 
-    # the file is opened in binary mode
-    try:
-        with open(csv_file_path, "rb") as source_file:
-            logger.info(f"Successfully opened file {csv_file_path}.")
-            job = load_table_from_file(client, source_file, table_ref, job_config)
-            if job is not None:
-                handle_job_result(job, csv_file_path)
-            else:
-                logger.error(
-                    "Error: Export" f"to Bigquery table failed for {csv_file_path}"
-                )
-    except (IOError, FileNotFoundError) as e:
-        logger.error(f"Failed to open file {csv_file_path}: {str(e)}")
+    source_file = open_source_file(csv_file_path)
+    if source_file is not None:
+        logger.info(f"Successfully opened file {csv_file_path}.")
+        job = load_table_from_file(client, source_file, table_ref, job_config)
+        if job is not None:
+            handle_job_result(job, csv_file_path)
+        else:
+            logger.error("Error: Export" f"to Bigquery table failed for {csv_file_path}")
