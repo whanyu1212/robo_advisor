@@ -35,6 +35,9 @@ mlflow = "^2.9.2"
 shap = "^0.44.0"
 optuna = "^3.5.0"
 google-cloud-aiplatform = "^1.39.0"
+google-cloud-storage = "^2.14.0"
+google-auth = "^2.26.2"
+requests = "^2.31.0"
 
 
 [build-system]
