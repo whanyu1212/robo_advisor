@@ -13,7 +13,7 @@ app = FastAPI()
 
 # Load the model at startup
 model_name = "Investment_strategy_model"
-model_version = 7
+model_version = 1
 CONFIG_FILE_PATH = "./cfg/catalog.yaml"
 config = parse_cfg(CONFIG_FILE_PATH)
 
@@ -85,7 +85,7 @@ async def startup_event():
         print(test_data_dict)
         predictions = make_prediction(test_data_dict)
         print(predictions)
-        print(accuracy_score(test_set["Investment_Strategy"], predictions))
+        print(accuracy_score(test_set_encoded["Investment_Strategy"], predictions))
     except Exception as e:
         print(f"Error during startup: {e}")
 
