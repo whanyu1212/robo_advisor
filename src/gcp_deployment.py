@@ -1,4 +1,5 @@
 import os
+import time
 
 import yaml
 from colorama import Fore, init
@@ -74,19 +75,14 @@ def deploy_model(
     service_account_json: str,
     machine_type: str = "n1-standard-4",
 ):
-    # Authenticate using the service account JSON key file
+    # Authenticate and initialize clients
     credentials = service_account.Credentials.from_service_account_file(
         service_account_json
     )
-
     client_options = {"api_endpoint": f"{location}-aiplatform.googleapis.com"}
-
-    # Initialize the Vertex AI Model Service client
     model_client = aiplatform.gapic.ModelServiceClient(
         client_options=client_options, credentials=credentials
     )
-
-    # Initialize the Vertex AI Endpoint Service client
     endpoint_client = aiplatform.gapic.EndpointServiceClient(
         client_options=client_options, credentials=credentials
     )
@@ -131,9 +127,17 @@ def deploy_model(
         traffic_split=traffic_split,
     )
     print("Deploying model to endpoint...")
-    operation.result()
 
-    print(f"Model deployed to endpoint: {endpoint_name}")
+    # Periodic status checks
+    while not operation.done():
+        print("Waiting for operation to complete...")
+        time.sleep(30)
+
+    if operation.exception():
+        print("Deployment failed!")
+        print(operation.exception())
+    else:
+        print(f"Model deployed to endpoint: {endpoint_name}")
 
 
 if __name__ == "__main__":
