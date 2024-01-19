@@ -93,6 +93,7 @@ def Optuna_flow(
         json.dump(best_params, outfile)
 
     experiment_id = create_or_get_experiment("lightgbm-optuna")
+    print(f"Experiment ID: {experiment_id}, Best Trial ID: {best_trial.number}")
     runs_df = mlflow.search_runs(
         experiment_ids=experiment_id,
         order_by=["metrics.mean_accuracy DESC"],
