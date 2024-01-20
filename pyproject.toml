@@ -41,6 +41,7 @@ requests = "^2.31.0"
 fastapi = "^0.109.0"
 uvicorn = "^0.26.0"
 jsonify = "^0.5"
+yfinance = "^0.2.35"
 
 
 [build-system]
