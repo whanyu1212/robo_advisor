@@ -1,8 +1,10 @@
+import os
 import time
 
 import pandas as pd
 import yaml
 from colorama import Fore, Style, init
+from dotenv import load_dotenv
 from loguru import logger
 
 from src.data_processing import DataProcessor
@@ -13,13 +15,13 @@ from src.utils.general_util_functions import parse_cfg, validate_config
 from src.utils.synthetic_data_generator import generate_synthetic_data
 
 init(autoreset=True)
-
+load_dotenv()
 logger.add("./logs/Workflow_logs.log")
 
 # Global variables
-CONFIG_FILE_PATH = "./cfg/catalog.yaml"
-MODEL_NAME = "Investment_strategy_model"
-MODEL_VERSION = 1
+CONFIG_FILE_PATH = os.getenv("CONFIG_FILE_PATH")
+MODEL_NAME = os.getenv("MODEL_NAME")
+MODEL_VERSION = os.getenv("MODEL_VERSION")
 
 
 def log_time_taken(start_time: float):
