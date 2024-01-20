@@ -42,6 +42,7 @@ fastapi = "^0.109.0"
 uvicorn = "^0.26.0"
 jsonify = "^0.5"
 yfinance = "^0.2.35"
+mplfinance = "^0.12.10b0"
 
 
 [build-system]

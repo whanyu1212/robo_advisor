@@ -2299,6 +2299,21 @@ files = [
 ]
 
 [[package]]
+name = "mplfinance"
+version = "0.12.10b0"
+description = "Utilities for the visualization, and visual analysis, of financial data"
+optional = false
+python-versions = "*"
+files = [
+    {file = "mplfinance-0.12.10b0-py3-none-any.whl", hash = "sha256:76d3b095f05ff35de730751649de063bea4064d0c49b21b6182c82997a7f52bb"},
+    {file = "mplfinance-0.12.10b0.tar.gz", hash = "sha256:7da150b5851aa5119ad6e06b55e48338b619bb6773f1b85df5de67a5ffd917bf"},
+]
+
+[package.dependencies]
+matplotlib = "*"
+pandas = "*"
+
+[[package]]
 name = "mpmath"
 version = "1.3.0"
 description = "Python library for arbitrary-precision floating-point arithmetic"
@@ -4929,4 +4944,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "99c4a336089f4accf8ff8bb0a9b7087e59eb5e0930f5d7333b62cffc88be58c6"
+content-hash = "f6562d6a31848d8e2de010330b051b26efda9e42e088b5308d546192900a624b"
