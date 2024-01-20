@@ -25,14 +25,14 @@ numerical_features:
 raw_filepath: ./data/raw/synthetic_data.csv
 reduced_features:
 - Credit_Score
-- Total_Liabilities
 - Total_Assets
-- Net_Worth
+- Total_Liabilities
 - Age
+- Net_Worth
 - Years_of_Investing
 - Number_of_Dependents
 - Risk_Tolerance_High
 - Income_Level_High
-- Risk_Tolerance_Low
+- Time_Horizon_Short-term
 table_id: synthetic_data_ML
 useless_features: -User_ID
