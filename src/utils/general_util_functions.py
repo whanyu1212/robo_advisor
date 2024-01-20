@@ -1,14 +1,46 @@
+import os
+import time
 from typing import IO, Dict, Union
 
 import pandas as pd
 import yaml
+from colorama import Fore, Style
+from dotenv import load_dotenv
 from google.cloud import bigquery
 from loguru import logger
 
-# Constants
-JOB_STATE_DONE = "DONE"
-JOB_STATE_PENDING = "PENDING"
-JOB_STATE_RUNNING = "RUNNING"
+load_dotenv()
+
+# Global variables
+
+JOB_STATE_DONE = os.getenv("JOB_STATE_DONE")
+JOB_STATE_PENDING = os.getenv("JOB_STATE_PENDING")
+JOB_STATE_RUNNING = os.getenv("JOB_STATE_RUNNING")
+
+
+def log_time_taken(start_time: float):
+    """
+    Log the time taken for the entire pipeline to run.
+
+    Args:
+        start_time (float): the start timestamp in seconds
+    """
+    end_time = time.time()
+    total_time = end_time - start_time
+    time_unit = "seconds"
+
+    if total_time > 60:
+        total_time /= 60
+        time_unit = "minutes"
+
+        if total_time > 60:
+            total_time /= 60
+            time_unit = "hours"
+
+    logger.info(
+        f"Process finished. Time taken: {Fore.GREEN}{total_time} "
+        f"{time_unit}{Style.RESET_ALL}. Exiting..."
+    )
 
 
 def parse_cfg(path) -> Dict:
@@ -56,6 +88,37 @@ def validate_config(config: Dict) -> None:
 
         if not value:
             raise ValueError(f"Config key {key} must not be empty")
+
+
+def log_important_features(features, config_file):
+    # Load the existing config
+    with open(config_file, "r") as f:
+        config = yaml.safe_load(f)
+
+    # Update the config with the new features
+    config["reduced_features"] = features
+
+    # Write the updated config back to the file
+    with open(config_file, "w") as f:
+        yaml.safe_dump(config, f)
+
+
+def get_csv_writer(df: pd.DataFrame, file_path: str) -> callable:
+    """
+    Lazy evaluation of csv writer.
+
+    Args:
+        df (pd.DataFrame): dataframe to be saved
+        file_path (str): location to save the dataframe
+
+    Returns:
+        callable: write to csv function
+    """
+
+    def write_to_csv():
+        df.to_csv(file_path, index=False)
+
+    return write_to_csv
 
 
 def split_predictor_target(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:

@@ -2,7 +2,6 @@ import os
 import time
 
 import pandas as pd
-import yaml
 from colorama import Fore, Style, init
 from dotenv import load_dotenv
 from loguru import logger
@@ -11,7 +10,13 @@ from src.data_processing import DataProcessor
 from src.mlflow_tuning import Optuna_flow
 from src.model_pipeline import ModelPipeline
 from src.utils.data_schema import synthetic_data_schema
-from src.utils.general_util_functions import parse_cfg, validate_config
+from src.utils.general_util_functions import (
+    get_csv_writer,
+    log_important_features,
+    log_time_taken,
+    parse_cfg,
+    validate_config,
+)
 from src.utils.synthetic_data_generator import generate_synthetic_data
 
 init(autoreset=True)
@@ -22,62 +27,6 @@ logger.add("./logs/Workflow_logs.log")
 CONFIG_FILE_PATH = os.getenv("CONFIG_FILE_PATH")
 MODEL_NAME = os.getenv("MODEL_NAME")
 MODEL_VERSION = os.getenv("MODEL_VERSION")
-
-
-def log_time_taken(start_time: float):
-    """
-    Log the time taken for the entire pipeline to run.
-
-    Args:
-        start_time (float): the start timestamp in seconds
-    """
-    end_time = time.time()
-    total_time = end_time - start_time
-    time_unit = "seconds"
-
-    if total_time > 60:
-        total_time /= 60
-        time_unit = "minutes"
-
-        if total_time > 60:
-            total_time /= 60
-            time_unit = "hours"
-
-    logger.info(
-        f"Process finished. Time taken: {Fore.GREEN}{total_time} "
-        f"{time_unit}{Style.RESET_ALL}. Exiting..."
-    )
-
-
-def log_important_features(features, config_file):
-    # Load the existing config
-    with open(config_file, "r") as f:
-        config = yaml.safe_load(f)
-
-    # Update the config with the new features
-    config["reduced_features"] = features
-
-    # Write the updated config back to the file
-    with open(config_file, "w") as f:
-        yaml.safe_dump(config, f)
-
-
-def get_csv_writer(df: pd.DataFrame, file_path: str) -> callable:
-    """
-    Lazy evaluation of csv writer.
-
-    Args:
-        df (pd.DataFrame): dataframe to be saved
-        file_path (str): location to save the dataframe
-
-    Returns:
-        callable: write to csv function
-    """
-
-    def write_to_csv():
-        df.to_csv(file_path, index=False)
-
-    return write_to_csv
 
 
 def generate_and_validate_data() -> pd.DataFrame:
