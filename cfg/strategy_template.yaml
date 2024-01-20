@@ -1,0 +1,48 @@
+strategy:
+  name: "Balanced Stock Market Strategy"
+  objective: "Achieve a balance between growth and stability with moderate risk in the stock market."
+  risk_profile: "Moderate"
+  target_investor: 
+    age_group: "30-50 years"
+    investment_horizon: "Medium to Long Term (5-10 years)"
+    financial_goals: "Combination of capital appreciation and stable income"
+
+equity_allocation:
+  total_percentage: 100
+  categories:
+    - category: "Large Cap Stocks"
+      percentage: 40
+      description: "Invest in large, well-established companies with a record of stable growth."
+    - category: "Mid Cap Stocks"
+      percentage: 20
+      description: "Invest in medium-sized companies with potential for higher growth than large caps."
+    - category: "Dividend Stocks"
+      percentage: 20
+      description: "Focus on stocks with a strong history of dividend payouts for income generation."
+    - category: "International Stocks"
+      percentage: 10
+      description: "Diversify globally to tap into growth opportunities in international markets."
+    - category: "Growth-Oriented Stocks"
+      percentage: 10
+      description: "Invest in stocks with high growth potential, albeit with higher risk."
+
+rebalancing:
+  frequency: "Annually"
+  method: "Adjust to maintain the target allocation, taking into account market conditions and performance."
+
+risk_management:
+  diversification: "Ensure a diversified portfolio across different sectors and geographies."
+  stop_loss_strategy: "Implement stop-loss orders to minimize potential losses."
+  regular_review: "Conduct regular portfolio reviews and adjust based on performance and risk assessment."
+
+performance_measurement:
+  benchmark: "A blend of stock market indices reflecting the portfolio's composition."
+  review_frequency: "Bi-annually"
+
+reporting:
+  report_frequency: "Quarterly"
+  contents: "Portfolio performance, asset allocation, market analysis, and adjustments made."
+
+compliance:
+  adherence_to_regulations: "Ensure all investments comply with market regulations."
+  ethical_investing: "Consider ethical investing principles where applicable."
