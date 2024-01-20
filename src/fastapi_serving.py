@@ -1,46 +1,25 @@
+import os
 from typing import Any, Dict, List
 
 import mlflow.pyfunc
 import pandas as pd
 from fastapi import FastAPI
+from loguru import logger
 from sklearn.metrics import accuracy_score
 
-from src.data_processing import DataProcessor
+from src.main import process_data
 from src.utils.general_util_functions import parse_cfg
 from src.utils.synthetic_data_generator import generate_synthetic_data
 
 app = FastAPI()
 
 # Load the model at startup
-model_name = "Investment_strategy_model"
-model_version = 1
+MODEL_NAME = os.getenv("MODEL_NAME")
+MODEL_VERSION = os.getenv("MODEL_VERSION")
 CONFIG_FILE_PATH = "./cfg/catalog.yaml"
 config = parse_cfg(CONFIG_FILE_PATH)
 
 app = FastAPI()
-
-
-def process_data(config: dict, synthetic_data: pd.DataFrame) -> pd.DataFrame:
-    """
-    Initializes the DataProcessor class and processes the data.
-
-    Args:
-        config (dict): configuration for columns
-        synthetic_data (pd.DataFrame): original synthetic data
-
-    Returns:
-        pd.DataFrame: processed synthetic data
-    """
-    processor = DataProcessor(
-        synthetic_data,
-        config["useless_features"],
-        config["categorical_features"],
-        config["numerical_features"],
-    )
-    df_processed = processor.remove_useless_columns()
-    df_dummies = processor.encode_categorical_columns(df_processed)
-    df_final = processor.combine_dummy_n_numeric(df_dummies, df_processed)
-    return df_final
 
 
 def load_features_to_keep(config: dict) -> List[str]:
@@ -59,42 +38,47 @@ def load_features_to_keep(config: dict) -> List[str]:
 
 # Assume this is your model loading function
 def load_model():
-    model = mlflow.pyfunc.load_model(model_uri=f"models:/{model_name}/{model_version}")
+    model = mlflow.pyfunc.load_model(model_uri=f"models:/{MODEL_NAME}/{MODEL_VERSION}")
     return model
 
 
 @app.router.on_startup.append
 async def startup_event():
-    global model
+    global trained_model
+    global important_features
     try:
-        model = load_model()
-        global features_to_keep
-        features_to_keep = load_features_to_keep(config)
-        print(features_to_keep)
-        test_set = generate_synthetic_data(n_samples=30)
-        test_set_encoded = process_data(config, test_set)
-        test_data = test_set_encoded[features_to_keep]
-        if set(features_to_keep) != set(test_data.columns):
+        trained_model = load_model()
+        important_features = load_features_to_keep(config)
+        logger.info(important_features)
+        synthetic_data = generate_synthetic_data(n_samples=30)
+        processed_synthetic_data = process_data(config, synthetic_data)
+        test_data = processed_synthetic_data[important_features]
+        if set(important_features) != set(test_data.columns):
             raise ValueError(
                 "Mismatch in the number of features between"
                 "the model and the synthetic data"
             )
         else:
-            print("All good!")
-        test_data_dict = test_data.to_dict(orient="records")
-        print(test_data_dict)
-        predictions = make_prediction(test_data_dict)
-        print(predictions)
-        print(accuracy_score(test_set_encoded["Investment_Strategy"], predictions))
+            logger.info("All good!")
+        test_data_as_dict = test_data.to_dict(orient="records")
+        logger.info(test_data_as_dict)
+        predictions = make_prediction(test_data_as_dict)
+        logger.info(predictions)
+        logger.info(
+            accuracy_score(processed_synthetic_data["Investment_Strategy"], predictions)
+        )
     except Exception as e:
-        print(f"Error during startup: {e}")
+        logger.error(f"Error during startup: {e}")
 
 
 def make_prediction(data: List[Dict[str, Any]]) -> List:
     data_df = pd.DataFrame(data)
-    return model.predict(data_df).tolist()
+    return trained_model.predict(data_df).tolist()
 
 
 @app.post("/predict")
 async def predict(data: List[Dict[str, Any]]) -> List:
     return make_prediction(data)
+
+
+# uvicorn fastapi_serving:app --reload
