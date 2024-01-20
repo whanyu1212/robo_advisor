@@ -1,9 +1,9 @@
 import random
 import string
-from typing import Series
 
 import numpy as np
 import pandas as pd
+from pandas import Series
 
 from src.utils.strategic_conditions import strategy_conditions
 
