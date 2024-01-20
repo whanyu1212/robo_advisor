@@ -21,11 +21,11 @@ synthetic_data_schema = DataFrameSchema(
         "Time_Horizon": Column(
             str, Check.isin(["Short-term", "Medium-term", "Long-term"])
         ),
-        "Total_Assets": Column(int, Check.greater_than_or_equal_to(0)),
-        "Total_Liabilities": Column(int, Check.greater_than_or_equal_to(0)),
+        "Total_Assets": Column(float, Check.greater_than_or_equal_to(0)),
+        "Total_Liabilities": Column(float, Check.greater_than_or_equal_to(0)),
         "Number_of_Dependents": Column(int, Check.greater_than_or_equal_to(0)),
         "Years_of_Investing": Column(int, Check.greater_than_or_equal_to(0)),
-        "Net_Worth": Column(int, Check.greater_than_or_equal_to(0)),
+        "Net_Worth": Column(float, Check.greater_than_or_equal_to(0)),
         "Investment_Strategy": Column(
             str,
             Check.isin(
