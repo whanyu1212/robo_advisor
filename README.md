@@ -2,7 +2,7 @@
 A robo advisor that is trained on ML to predict user preference in order to assign and execute trading strategy accordingly
 
 ```
-|-- cfg|
+|-- cfg
 |   |-- config.yml
 |   |-- strategy_template.yaml
 |-- data
