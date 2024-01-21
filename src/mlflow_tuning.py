@@ -1,18 +1,37 @@
 import json
 import pickle
+from typing import Any, Dict
 
 import mlflow
 import mlflow.lightgbm
 import mlflow.pyfunc
 import numpy as np
 import optuna
-from lightgbm import LGBMClassifier
+import pandas as pd
+from lightgbm import LGBMClassifier, LGBMModel
+from loguru import logger
 from mlflow.exceptions import MlflowException
+from numpy import ndarray
+from optuna.trial import Trial
 from sklearn.metrics import accuracy_score, log_loss
 from sklearn.model_selection import RepeatedKFold, train_test_split
 
 
-def create_or_get_experiment(name):
+def create_or_get_experiment(name: str) -> str:
+    """
+    Create or get an mlflow experiment based on the experiment name
+    specified.
+
+    Args:
+        name (str): name to be given to the experiment
+        or name of the experiment to be retrieved
+
+    Raises:
+        ValueError: if the experiment name is not found
+
+    Returns:
+        str: experiment ID in string format
+    """
     try:
         experiment_id = mlflow.create_experiment(name)
     except MlflowException:
@@ -24,14 +43,36 @@ def create_or_get_experiment(name):
     return experiment_id
 
 
-def log_model_and_params(model, trial, params, mean_accuracy):
+def log_model_and_params(
+    model: LGBMModel, trial: Trial, params: Dict[str, Any], mean_accuracy: float
+):
+    """
+    Log the model, params, and mean accuracy from mlflow experiments.
+
+    Args:
+        model (LGBMModel): the lightgbm trained every trial
+        trial (Trial): the optuna trial
+        params (Dict[str, Any]): the parameters used for the lightgbm model
+        mean_accuracy (float): the mean accuracy of the model for every trial
+    """
     mlflow.lightgbm.log_model(model, "lightgbm_model")
     mlflow.log_params(params)
     mlflow.log_metric("mean_accuracy", mean_accuracy)
     trial.set_user_attr(key="best_booster", value=pickle.dumps(model))
 
 
-def objective(X_train, y_train, trial):
+def objective(X_train: pd.DataFrame, y_train: ndarray, trial: Trial) -> float:
+    """
+    The objective function for the optuna study.
+
+    Args:
+        X_train (pd.DataFrame): predictors from training data
+        y_train (ndarray): response from training data
+        trial (Trial): the optuna trial
+
+    Returns:
+        float: accuracy score of the model
+    """
     experiment_id = create_or_get_experiment("lightgbm-optuna")
 
     with mlflow.start_run(experiment_id=experiment_id, nested=True):
@@ -73,14 +114,18 @@ def objective(X_train, y_train, trial):
 
         log_model_and_params(lgbm_cl, trial, params, mean_accuracy)
 
-    return (
-        mean_accuracy  # or return mean_accuracy depending on what you want to optimize
-    )
+    return mean_accuracy
 
 
 def Optuna_flow(
-    model_name, model_version, X, y, test_size=0.2, n_trials=30, random_state=42
-):
+    model_name: str,
+    model_version: str,
+    X: pd.DataFrame,
+    y: ndarray,
+    test_size: float = 0.2,
+    n_trials: int = 30,
+    random_state: int = 42,
+) -> LGBMModel:
     X_train, _, y_train, _ = train_test_split(
         X, y, test_size=test_size, random_state=random_state
     )
@@ -93,7 +138,6 @@ def Optuna_flow(
         json.dump(best_params, outfile)
 
     experiment_id = create_or_get_experiment("lightgbm-optuna")
-    print(f"Experiment ID: {experiment_id}, Best Trial ID: {best_trial.number}")
     runs_df = mlflow.search_runs(
         experiment_ids=experiment_id,
         order_by=["metrics.mean_accuracy DESC"],
@@ -104,6 +148,6 @@ def Optuna_flow(
     _ = mlflow.register_model("runs:/" + best_run_id + "/lightgbm_model", model_name)
 
     model = mlflow.pyfunc.load_model(model_uri=f"models:/{model_name}/{model_version}")
-    print(model)
+    logger.info("Model loaded. the model information is as follows: {}".format(model))
 
     return model
