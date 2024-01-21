@@ -1,5 +1,40 @@
-# robo_advisor
+# ML Powered Robo Advisor
 A robo advisor that is trained on ML to predict user preference in order to assign and execute trading strategy accordingly
+
+|-- cfg|
+|   |-- config.yml
+|   |-- strategy_template.yaml
+|-- data
+|   |-- processed
+|       |-- df_trimmed.csv
+|   |-- raw
+|       |-- synthetic_data.csv
+|-- logs
+|-- mlruns
+|-- notebooks
+|   |-- test_api.ipynb
+|-- src
+|   |-- util
+|       |-- data_schema.py
+|       |-- general_util_functions.py
+|       |-- strategic_conditions.py
+|       |-- synthetic_data_generator.py
+|   |-- interface.py
+|   |-- data_processing.py
+|   |-- fastapi_serving.py
+|   |-- gcp_deployment.py
+|   |-- main.py
+|   |-- mlflow_tuning.py
+|   |-- model_pipeline.[y]
+|-- tests
+|-- .env
+|-- .gitignore
+|-- .pre-commit-config.yaml
+|-- dockerfile
+|-- poetry.lock
+|-- pyproject.toml
+|-- README.md
+|-- requirements.txt
 
 ### Part 1: ML Prediction to find the suitable investment strategy based on user profile features
 
