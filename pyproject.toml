@@ -44,6 +44,7 @@ jsonify = "^0.5"
 yfinance = "^0.2.35"
 mplfinance = "^0.12.10b0"
 python-dotenv = "^1.0.0"
+pytest = "^7.4.4"
 
 
 [build-system]
