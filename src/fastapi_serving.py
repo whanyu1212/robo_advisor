@@ -129,3 +129,5 @@ async def predict(data: List[Dict[str, Any]]) -> List:
 
 
 # uvicorn src.fastapi_serving:app --reload
+# docker build -t my_image_name .
+# docker run -p 8000:8000 my_image_name
