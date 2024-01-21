@@ -1,6 +1,7 @@
 # ML Powered Robo Advisor
 A robo advisor that is trained on ML to predict user preference in order to assign and execute trading strategy accordingly
 
+```
 |-- cfg|
 |   |-- config.yml
 |   |-- strategy_template.yaml
@@ -35,6 +36,7 @@ A robo advisor that is trained on ML to predict user preference in order to assi
 |-- pyproject.toml
 |-- README.md
 |-- requirements.txt
+```
 
 ### Part 1: ML Prediction to find the suitable investment strategy based on user profile features
 
