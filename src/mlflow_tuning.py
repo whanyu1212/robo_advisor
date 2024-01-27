@@ -1,5 +1,6 @@
 import json
 import pickle
+import time
 from typing import Any, Dict
 
 import mlflow
@@ -100,8 +101,19 @@ def objective(X_train: pd.DataFrame, y_train: ndarray, trial: Trial) -> float:
             X_train_sub, y_train_sub = X_values[train_index], y_values[train_index]
             X_valid_sub, y_valid_sub = X_values[valid_index], y_values[valid_index]
 
-            lgbm_cl.fit(X_train_sub, y_train_sub, eval_set=[(X_valid_sub, y_valid_sub)])
-            y_pred = lgbm_cl.predict(X_valid_sub)
+            try:
+                lgbm_cl.fit(
+                    X_train_sub, y_train_sub, eval_set=[(X_valid_sub, y_valid_sub)]
+                )
+            except Exception as e:
+                print(f"Failed to train model: {e}")
+                return  # or break, depending on what you want to do when training fails
+
+            try:
+                y_pred = lgbm_cl.predict(X_valid_sub)
+            except Exception as e:
+                print(f"Failed to make predictions: {e}")
+                return
             y_pred_proba = lgbm_cl.predict_proba(X_valid_sub)
 
             accuracy = accuracy_score(y_valid_sub, y_pred)
@@ -125,15 +137,47 @@ def Optuna_flow(
     test_size: float = 0.2,
     n_trials: int = 30,
     random_state: int = 42,
+    max_retries: int = 3,
+    delay: int = 5,
 ) -> LGBMModel:
     X_train, _, y_train, _ = train_test_split(
         X, y, test_size=test_size, random_state=random_state
     )
 
+    if not isinstance(X, pd.DataFrame):
+        raise ValueError("X should be a DataFrame")
+    if not isinstance(y, np.ndarray):
+        raise ValueError("y should be a ndarray")
+    if not (0 < test_size < 1):
+        raise ValueError("test_size should be a float between 0 and 1")
+    if not (isinstance(n_trials, int) and n_trials > 0):
+        raise ValueError("n_trials should be a positive integer")
+
+    # assert isinstance(model_name, str), "model_name should be a string"
+    # assert isinstance(model_version, str), "model_version should be a string"
+    # assert isinstance(X, pd.DataFrame), "X should be a DataFrame"
+    # assert isinstance(y, np.ndarray), "y should be a ndarray"
+    # assert 0 < test_size < 1, "test_size should be a float between 0 and 1"
+    # assert (
+    #     isinstance(n_trials, int) and n_trials > 0
+    # ), "n_trials should be a positive integer"
+    # assert isinstance(random_state, int), "random_state should be an integer"
+
     study = optuna.create_study(study_name="test", direction="maximize")
-    study.optimize(lambda trial: objective(X_train, y_train, trial), n_trials=n_trials)
-    best_trial = study.best_trial
-    best_params = best_trial.params
+
+    for _ in range(max_retries):
+        try:
+            study.optimize(
+                lambda trial: objective(X_train, y_train, trial), n_trials=n_trials
+            )
+            best_trial = study.best_trial
+            best_params = best_trial.params
+            break
+        except Exception as e:
+            print(f"An error occurred: {e}. Retrying in {delay} seconds...")
+            time.sleep(delay)
+    else:
+        raise RuntimeError("Failed to optimize the study after maximum retries")
     with open("./output/best_param.json", "w") as outfile:
         json.dump(best_params, outfile)
 
@@ -145,7 +189,10 @@ def Optuna_flow(
     best_run = runs_df.iloc[0]
     best_run_id = best_run["run_id"]
 
-    _ = mlflow.register_model("runs:/" + best_run_id + "/lightgbm_model", model_name)
+    try:
+        _ = mlflow.register_model("runs:/" + best_run_id + "/lightgbm_model", model_name)
+    except MlflowException as e:
+        logger.error(f"Failed to register model: {e}")
 
     model = mlflow.pyfunc.load_model(model_uri=f"models:/{model_name}/{model_version}")
     logger.info("Model loaded. the model information is as follows: {}".format(model))
