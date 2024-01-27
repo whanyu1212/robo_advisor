@@ -2,7 +2,7 @@ from pandera import Check, Column, DataFrameSchema
 
 synthetic_data_schema = DataFrameSchema(
     {
-        "User_ID": Column(str, Check.str_length(10, 10)),
+        "User_ID": Column(str, Check.str_length(10, 10), nullable=True),
         "Age": Column(
             int, Check.greater_than_or_equal_to(18), Check.less_than_or_equal_to(100)
         ),
